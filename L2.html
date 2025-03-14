@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet Map with JSON and Geolocation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+
+        .custom-marker-icon {
+            background-color: red; /* Or any color you want */
+            width: 20px;
+            height: 20px;
+            display: block;
+            left: -10px;
+            top: -10px;
+            position: relative;
+            border-radius: 20px; /* Make it a circle */
+            border: 1px solid #fff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Map with JSON Markers and Geolocation</h1>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        // JSON Data
+        const mapData = {
+            "locations": [
+                {
+                    "latitude": 34.0522,
+                    "longitude": -118.2437,
+                    "title": "Los Angeles"
+                },
+                {
+                    "latitude": 40.7128,
+                    "longitude": -74.0060,
+                    "title": "New York City"
+                },
+                {
+                    "latitude": 37.7749,
+                    "longitude": -122.4194,
+                    "title": "San Francisco"
+                },
+                {
+                    "latitude": 51.5074,
+                    "longitude": 0.1278,
+                    "title": "London"
+                },
+                {
+                    "latitude": 48.8566,
+                    "longitude": 2.3522,
+                    "title": "Paris"
+                },
+                {
+                    "latitude": 35.6895,
+                    "longitude": 139.6917,
+                    "title": "Tokyo"
+                },
+                {
+                    "latitude": -33.8688,
+                    "longitude": 151.2093,
+                    "title": "Sydney"
+                },
+                {
+                    "latitude": 41.9028,
+                    "longitude": 12.4964,
+                    "title": "Rome"
+                },
+                {
+                    "latitude": 52.5200,
+                    "longitude": 13.4050,
+                    "title": "Berlin"
+                },
+                {
+                    "latitude": 40.4168,
+                    "longitude": -3.7038,
+                    "title": "Madrid"
+                }
+            ]
+        };
+
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2); // Initial map center and zoom
+
+        // Add a tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add markers from JSON data
+        mapData.locations.forEach(function(location) {
+            L.marker([location.latitude, location.longitude])
+                .bindPopup('<h3>' + location.title + '</h3>')
+                .addTo(map);
+        });
+
+        // Custom Icon for User Location
+        let userIcon = L.divIcon({
+            className: 'custom-marker-icon', // Use the CSS class for styling
+            iconSize: [20, 20],  // Size of the icon
+            iconAnchor: [10, 10]  // Anchor point relative to the icon's top-left corner
+        });
+
+
+        // Function to get user's location
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Success callback for geolocation
+        function showPosition(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            L.marker([lat, lon], {icon: userIcon}) // Use the custom icon
+                .bindPopup("<h3>Your Location</h3>")
+                .addTo(map);
+
+            map.setView([lat, lon], 13); // Center the map on the user's location
+        }
+
+        // Error callback for geolocation
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+
+        // Get user's location
+        getLocation();
+
+
+    </script>
+
+</body>
+</html>
